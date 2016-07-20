@@ -1,0 +1,11 @@
+---
+- name: Restart node
+  service: name=atomic-openshift-node state=restarted
+- name: Restart master
+  service: name=atomic-openshift-master state=restarted
+- name: Restart docker
+  service: name=docker state=restarted
+- name: Validade master-config
+  shell: /bin/true
+- name: Validade node-config
+  shell: /bin/true

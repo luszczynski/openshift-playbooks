@@ -1,0 +1,66 @@
+---
+- hosts: master
+  tasks:
+   - include_vars: vars.yml
+
+   - name: Checking if registry is already installed
+     shell: oc get all -l docker-registry=default -n default
+     register: registry_installed
+     tags:
+         - registry
+
+   - name: Cleaning up registry
+     shell: oc project default && oc delete all -l docker-registry=default && oc delete sa registry && oc delete ClusterRoleBinding registry-registry-role
+     when: registry_installed.stdout != ""
+     ignore_errors: yes
+     tags:
+         - registry
+
+   - name: Checking if router is already installed
+     shell: oc get all -l router=router -n default
+     register: router_installed
+     tags:
+         - router
+
+   - name: Cleaning up router
+     shell: oc delete all -l router=router -n default
+     when: router_installed.stdout != ""
+     tags:
+         - router
+
+   - name: Checking if metrics is already installed
+     shell: oc get all --selector="metrics-infra" -n openshift-infra
+     register: metrics_installed
+     tags:
+         - metrics
+
+   - name: Cleaning up metrics
+     shell: oc project openshift-infra && oc delete all --selector="metrics-infra" && oc delete sa --selector="metrics-infra" && oc delete templates --selector="metrics-infra" && oc delete secrets --selector="metrics-infra" && oc delete pvc --selector="metrics-infra"  && oc delete sa metrics-deployer && oc delete secret metrics-deployer
+     when: metrics_installed.stdout != ""
+     ignore_errors: yes
+     tags:
+         - metrics
+
+   - name: Remove metrics images
+     shell: docker rmi {{ item }}
+     when: remove_images_on_cleanup
+     tags:
+         - metrics
+     with_items:
+      - registry.access.redhat.com/openshift3/metrics-heapster:3.2.1
+      - registry.access.redhat.com/openshift3/metrics-hawkular-metrics:3.2.1
+      - registry.access.redhat.com/openshift3/metrics-cassandra:3.2.1
+
+   - name: Checking if logging is already installed
+     shell: oc get projects | grep logging
+     register: logging_installed
+     ignore_errors: yes
+     tags:
+         - logging
+
+   - name: Cleaning up logging aggregation
+     shell: oc project logging && oc delete all --selector logging-infra=kibana && oc delete all --selector logging-infra=fluentd && oc delete all --selector logging-infra=elasticsearch && oc delete all --selector logging-infra=curator && oc delete all,sa,oauthclient --selector logging-infra=support && oc delete secret logging-fluentd logging-elasticsearch  logging-es-proxy logging-kibana logging-kibana-proxy logging-kibana-ops-proxy; oc delete project logging
+     when: logging_installed.stdout != ''
+     ignore_errors: yes
+     tags:
+         - logging

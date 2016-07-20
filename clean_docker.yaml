@@ -1,0 +1,21 @@
+---
+- hosts: all
+  tasks:
+   - include_vars: vars.yml
+
+   - name: Changing to project openshift-infra
+     shell: docker rm $(docker ps -a -q)
+     ignore_errors: yes
+
+   - name: Remove Old Images
+     shell: docker rmi $(docker images | grep 172.30 | awk '{print $3}')
+     ignore_errors: yes
+
+- hosts: master
+  tasks:
+
+    - name: Prune old images on register
+      shell: oc login -u {{user}} -p {{pass}} && oadm prune images --confirm
+
+    - name: Prune old builds and deployments
+      shell: oc login -u {{user}} -p {{pass}} && oadm prune builds --confirm && oadm prune deployments --confirm

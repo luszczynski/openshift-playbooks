@@ -1,0 +1,8 @@
+---
+subdomain: cloudapps.example.com
+domain: example.com
+master_name: master
+number_of_nodes: 3
+remove_images_on_cleanup: False
+user: admin
+pass: redhat
