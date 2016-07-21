@@ -54,9 +54,14 @@
      shell: oc new-app logging-support-template
      when: logging_installed.stdout == ''
 
-   #- name: Importing new tags
-    # shell: /bin/true
-    # when: logging_installed.stdout == ''
+   - name: Importing new tags
+     shell: oc import-image "{{item}}:3.2.0" --from "registry.access.redhat.com/openshift3/{{item}}:3.2.0"
+     when: logging_installed.stdout == ''
+     with_items:
+         - logging-auth-proxy
+         - logging-kibana
+         - logging-elasticsearch
+         - logging-fluentd
 
    - name: Scale up fluentd
      shell: oc scale dc/logging-fluentd --replicas={{number_of_nodes}}

@@ -41,15 +41,15 @@
      tags:
          - metrics
 
-   - name: Remove metrics images
-     shell: docker rmi {{ item }}
-     when: remove_images_on_cleanup
-     tags:
-         - metrics
-     with_items:
-      - registry.access.redhat.com/openshift3/metrics-heapster:3.2.1
-      - registry.access.redhat.com/openshift3/metrics-hawkular-metrics:3.2.1
-      - registry.access.redhat.com/openshift3/metrics-cassandra:3.2.1
+   # - name: Remove metrics images
+   #   shell: docker rmi {{ item }}
+   #   when: metrics_installed.stdout != "" and remove_images_on_cleanup == True
+   #   tags:
+   #       - metrics
+   #   with_items:
+   #    - registry.access.redhat.com/openshift3/metrics-heapster:3.2.1
+   #    - registry.access.redhat.com/openshift3/metrics-hawkular-metrics:3.2.1
+   #    - registry.access.redhat.com/openshift3/metrics-cassandra:3.2.1
 
    - name: Checking if logging is already installed
      shell: oc get projects | grep logging
