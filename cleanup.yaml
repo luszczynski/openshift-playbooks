@@ -1,7 +1,7 @@
 ---
 - hosts: master
   tasks:
-   - include_vars: vars.yml
+   - include_vars: vars.yaml
 
    - name: Checking if registry is already installed
      shell: oc get all -l docker-registry=default -n default

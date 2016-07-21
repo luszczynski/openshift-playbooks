@@ -1,0 +1,25 @@
+---
+- hosts: all
+  tasks:
+   - include_vars: vars.yaml
+
+   - name:
+     shell:
+
+- hosts: master
+  tasks:
+    - include_vars: vars.yml
+
+    - name:
+      shell:
+
+- hosts: nodes
+  tasks:
+    - include_vars: vars.yml
+
+    - name:
+      shell:
+
+
+# Parallel Image Pulls with Docker 1.9+ (https://docs.openshift.com/enterprise/3.2/install_config/master_node_configuration.html#node-configuration-files)
+# Node GC (https://docs.openshift.com/enterprise/3.2/admin_guide/garbage_collection.html)

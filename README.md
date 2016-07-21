@@ -107,3 +107,7 @@ Coming soon
 #### Openshift installation pre-req
 
 Coming soon
+
+#### Configuring proxy on Openshift
+
+Coming soon
