@@ -1,0 +1,21 @@
+---
+- hosts: all
+  tasks:
+   - include_vars: vars.yml
+
+   - name:
+     shell:
+
+- hosts: master
+  tasks:
+    - include_vars: vars.yml
+
+    - name:
+      shell:
+
+- hosts: nodes
+  tasks:
+    - include_vars: vars.yml
+
+    - name:
+      shell:

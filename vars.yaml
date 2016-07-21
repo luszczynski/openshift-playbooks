@@ -1,0 +1,19 @@
+---
+subdomain: cloudapps.example.com
+domain: example.com
+number_of_nodes: 3
+remove_images_on_cleanup: False
+user: admin
+pass: redhat
+
+secure_registry: False
+expose_router_metrics: False
+
+http_proxy:
+https_proxy:
+no_proxy:
+user_proxy:
+pass_proxy:
+
+sdn_range: 10.1.0.0/16
+service_ip_range: 172.30.0.0/16

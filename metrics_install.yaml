@@ -37,7 +37,7 @@
      when: metrics_installed.stdout == ''
 
    - name: Editing master-config.yaml with metrics url
-     lineinfile: dest=/etc/origin/master/master-config.yaml state=present backup=yes insertbefore='logout' line='  metricsPublicURL':' https://hawkular-metrics.{{subdomain}}/hawkular/metrics'
+     lineinfile: dest=/etc/origin/master/master-config.yaml state=present backup=yes insertbefore='logout' line="  metricsPublicURL: https://hawkular-metrics.{{subdomain}}/hawkular/metrics"
      when: metrics_installed.stdout == ''
      notify:
        - Validate master-config

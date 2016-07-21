@@ -1,0 +1,86 @@
+---
+- hosts: master
+  tasks:
+   - include_vars: vars.yml
+
+   - name: Checking if registry is already installed
+     shell: oc get all -l docker-registry=default -n default
+     register: registry_installed
+
+   - name: Greping master info
+     shell: oc get nodes | grep -i $(hostname) | awk '{print $1}'
+     register: master_name
+     when: registry_installed.stdout == ''
+
+   - name: Changing master to schedulable
+     shell: oadm manage-node {{master_name.stdout}} --schedulable=true
+     when: registry_installed.stdout == ''
+
+   - name: Grep master label
+     shell: oc describe node {{master_name.stdout}} | grep Label | awk '{print $2}'
+     register: master_label
+     when: registry_installed.stdout == ''
+
+   - name: Install Registry
+     shell: oc project default && oadm registry --service-account=registry  --config=/etc/origin/master/admin.kubeconfig  --images='registry.access.redhat.com/openshift3/ose-${component}:${version}' --mount-host=/registry --selector={{master_label.stdout}}
+     failed_when: master_label.stdout == ''
+     when: registry_installed.stdout == ''
+     notify:
+       - Create and correct registry folder permissions
+
+   - name: Fetch registry service IP
+     shell: oc get svc/docker-registry -n default --no-headers | awk '{print $2}'
+     register: ip_registry
+     when: registry_installed.stdout == '' and secure_registry == True
+
+   - name: Creating certs
+     shell: oadm ca create-server-cert --signer-cert=/etc/origin/master/ca.crt --signer-key=/etc/origin/master/ca.key  --signer-serial=/etc/origin/master/ca.serial.txt --hostnames='docker-registry.{{subdomain}},docker-registry.default.svc.cluster.local,{{ip_registry.stdout}}'  --cert=/etc/secrets/registry.crt --key=/etc/secrets/registry.key
+
+   - name: Creating secrets
+     shell: oc secrets new registry-secret /etc/secrets/registry.crt /etc/secrets/registry.key -n default
+     when: registry_installed.stdout == '' and secure_registry == True
+
+   - name: Updating permissions
+     shell: oc secrets add serviceaccounts/registry secrets/registry-secret -n default && oc secrets add serviceaccounts/default  secrets/registry-secret -n default
+     when: registry_installed.stdout == '' and secure_registry == True
+
+   - name: Creating volume for secret
+     shell: oc volume dc/docker-registry --add --type=secret --secret-name=registry-secret -m /etc/secrets -n default
+     when: registry_installed.stdout == '' and secure_registry == True
+
+   - name: Enable TLS
+     shell: oc env dc/docker-registry REGISTRY_HTTP_TLS_CERTIFICATE=/etc/secrets/registry.crt REGISTRY_HTTP_TLS_KEY=/etc/secrets/registry.key -n default
+     when: registry_installed.stdout == '' and secure_registry == True
+
+   - name: Updating liveness probe
+     shell: oc patch dc/docker-registry --api-version=v1 -p '{"spec": {"template": {"spec": {"containers":[{"name":"registry","livenessProbe":{"httpGet": {"scheme":"HTTPS"}}}]}}}}' -n default
+     when: registry_installed.stdout == '' and secure_registry == True
+
+   - name: Updating readiness probe
+     shell: oc patch dc/docker-registry --api-version=v1 -p '{"spec": {"template": {"spec": {"containers":[{"name":"registry","readinessProbe":{"httpGet": {"scheme":"HTTPS"}}}]}}}}' -n default
+     when: registry_installed.stdout == '' and secure_registry == True
+
+   - name: Waiting for new registry spin up
+     shell: oc logs dc/docker-registry | grep tls
+     register: registry_status
+     until: registry_status.stdout != ''
+     retries: 20
+     delay: 30
+     when: registry_installed.stdout == '' and secure_registry == True
+
+   - name: Copy the CA certificate to the Docker certificates directory
+     shell: /bin/true
+     when: registry_installed.stdout == '' and secure_registry == True
+
+   - name: Remove the --insecure-registry option
+     shell: /bin/true
+     when: registry_installed.stdout == '' and secure_registry == True
+
+   - name: Running docker push to the registry
+     shell: /bin/true
+     when: registry_installed.stdout == '' and secure_registry == True
+
+  handlers:
+    - name: Create and correct registry folder permissions
+      shell: mkdir -p /registry && chown 1001:root /registry
+    - include: handlers/handlers.yaml

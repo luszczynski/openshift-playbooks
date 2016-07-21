@@ -58,7 +58,7 @@
      when: logging_installed.stdout == ''
 
    - name: Editing master-config.yaml with logging url
-     lineinfile: dest=/etc/origin/master/master-config.yaml state=present backup=yes insertbefore='logout' line='  loggingPublicURL':' https://kibana.{{subdomain}}'
+     lineinfile: dest=/etc/origin/master/master-config.yaml state=present backup=yes insertbefore='logout' line="  loggingPublicURL: https://kibana.{{subdomain}}"
      when: logging_installed.stdout == ''
      notify:
        - Validate master-config
