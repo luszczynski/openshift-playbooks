@@ -34,8 +34,13 @@
      shell: oc policy add-role-to-user edit --serviceaccount logging-deployer && oadm policy add-scc-to-user privileged system:serviceaccount:logging:aggregated-logging-fluentd && oadm policy add-cluster-role-to-user cluster-reader system:serviceaccount:logging:aggregated-logging-fluentd
      when: logging_installed.stdout == ''
 
+   - name: Fetch master public url
+     shell: grep masterPublicURL /etc/origin/master/master-config.yaml | head -1 | awk '{print $2}'
+     register: master_public_url
+     when: logging_installed.stdout == ''
+
    - name: Creating logging deployer
-     shell: oc new-app logging-deployer-template --param KIBANA_HOSTNAME=kibana.{{subdomain}} --param ES_CLUSTER_SIZE=1 --param PUBLIC_MASTER_URL=https://{{master_name}}.{{domain}}:8443
+     shell: oc new-app logging-deployer-template --param KIBANA_HOSTNAME=kibana.{{subdomain}} --param ES_CLUSTER_SIZE=1 --param PUBLIC_MASTER_URL={{master_public_url.stdout}}
      when: logging_installed.stdout == ''
 
    - shell: oc get po | grep logging-deployer | awk '{print $3}'
