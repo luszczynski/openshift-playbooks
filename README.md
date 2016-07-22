@@ -82,19 +82,19 @@ ansible-playbooks -i hosts.ini uninstall.yml
 ### Uninstalling only some components
 ```bash
 # Uninstalling router
-ansible-playbooks -i hosts.ini uninstall --tags=router
+ansible-playbooks -i hosts.ini uninstall.yml --tags=router
 
 # Uninstalling registry
-ansible-playbooks -i hosts.ini uninstall --tags=registry
+ansible-playbooks -i hosts.ini uninstall.yml --tags=registry
 
 # Uninstalling metrics
-ansible-playbooks -i hosts.ini uninstall --tags=metrics
+ansible-playbooks -i hosts.ini uninstall.yml --tags=metrics
 
 # Uninstalling logging
-ansible-playbooks -i hosts.ini uninstall --tags=logging
+ansible-playbooks -i hosts.ini uninstall.yml --tags=logging
 
 # Uninstalling router and registry
-ansible-playbooks -i hosts.ini uninstall --tags=router,registry
+ansible-playbooks -i hosts.ini uninstall.yml --tags=router,registry
 ```
 
 ### Some other actions
