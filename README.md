@@ -22,18 +22,18 @@ You need to update `hosts.ini` and `var.yml` according to your environment
 10.1.1.22
 ```
 
-`vars.yaml` example:
+`vars.yml` example:
 ```yaml
 ---
 subdomain: cloudapps.example.com
 domain: example.com
 number_of_nodes: 3
-remove_images_on_cleanup: False
+remove_images_on_cleanup: false
 user: admin # this user needs to be cluster admin
 pass: redhat
 
-secure_registry: False
-expose_router_metrics: False
+secure_registry: false
+expose_router_metrics: false
 
 http_proxy:
 https_proxy:
@@ -51,44 +51,50 @@ git clone https://github.com/luszczynski/openshift-playbooks && cd openshift-pla
 ```
 ### Installing router, registry, metrics and logging
 ```bash
-ansible-playbooks -i hosts.ini router_install.yaml registry_install.yaml metrics_install.yaml logging_install.yaml
+ansible-playbooks -i hosts.ini install.yml
 ```
 
 ### Installing only some components
 ```bash
 # Installing router
-# If you want router metrics, set expose_router_metrics to True in vars.yaml
-ansible-playbooks -i hosts.ini router_install.yaml
+# If you want router metrics, set expose_router_metrics to true in vars.yaml
+ansible-playbooks -i hosts.ini install.yml --tags=router
 
 # Installing registry
-# If you want to secure registry, set secure_registry to True in vars.yaml
-ansible-playbooks -i hosts.ini registry_install.yaml
+# If you want to secure registry, set secure_registry to true in vars.yaml
+ansible-playbooks -i hosts.ini install.yml --tags=registry
 
 # Installing metrics
-ansible-playbooks -i hosts.ini metrics_install.yaml
+ansible-playbooks -i hosts.ini install.yml --tags=metrics
 
 # Installing logging
-ansible-playbooks -i hosts.ini logging_install.yaml
+ansible-playbooks -i hosts.ini install.yml --tags=logging
+
+# Instaling router and registry
+ansible-playbooks -i hosts.ini install.yml --tags=router,registry
 ```
 
 ### Uninstalling router, registry, metrics and logging
 ```bash
-ansible-playbooks -i hosts.ini cleanup.yaml
+ansible-playbooks -i hosts.ini uninstall.yml
 ```
 
 ### Uninstalling only some components
 ```bash
 # Uninstalling router
-ansible-playbooks -i hosts.ini cleanup.yaml --tags=router
+ansible-playbooks -i hosts.ini uninstall --tags=router
 
 # Uninstalling registry
-ansible-playbooks -i hosts.ini cleanup.yaml --tags=registry
+ansible-playbooks -i hosts.ini uninstall --tags=registry
 
 # Uninstalling metrics
-ansible-playbooks -i hosts.ini cleanup.yaml --tags=metrics
+ansible-playbooks -i hosts.ini uninstall --tags=metrics
 
 # Uninstalling logging
-ansible-playbooks -i hosts.ini cleanup.yaml --tags=logging
+ansible-playbooks -i hosts.ini uninstall --tags=logging
+
+# Uninstalling router and registry
+ansible-playbooks -i hosts.ini uninstall --tags=router,registry
 ```
 
 ### Some other actions
@@ -97,7 +103,7 @@ ansible-playbooks -i hosts.ini cleanup.yaml --tags=logging
 You can clean stopped containers and also remove images from registry in order to release some space on disk.
 
 ```bash
-ansible-playbooks -i hosts.ini clean_docker.yaml
+ansible-playbooks -i hosts.ini tasks/others/clean_docker.yml
 ```
 
 #### Configure GC on Openshift

@@ -1,0 +1,13 @@
+---
+- hosts: master
+  handlers:
+    - include: ../handlers/handlers.yml
+  tasks:
+    - include: tasks/router.yml uninstall=true
+      tags: [router]
+    - include: tasks/registry.yml uninstall=true
+      tags: [registry]
+    - include: tasks/metrics.yml uninstall=true
+      tags: [metrics]
+    - include: tasks/logging.yml uninstall=true
+      tags: [logging]

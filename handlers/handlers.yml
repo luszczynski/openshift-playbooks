@@ -9,3 +9,5 @@
   shell: /bin/true
 - name: Validade node-config
   shell: /bin/true
+- name: Create and correct registry folder permissions
+  shell: mkdir -p /registry && chown 1001:root /registry

@@ -1,0 +1,13 @@
+---
+- hosts: master
+  handlers:
+    - include: ../handlers/handlers.yml
+  tasks:
+    - include: tasks/router.yml
+      tags: [router]
+    - include: tasks/registry.yml
+      tags: [registry]
+    - include: tasks/metrics.yml
+      tags: [metrics]
+    - include: tasks/logging.yml
+      tags: [logging]

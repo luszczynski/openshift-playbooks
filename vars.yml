@@ -2,12 +2,12 @@
 subdomain: cloudapps.example.com
 domain: example.com
 number_of_nodes: 3
-remove_images_on_cleanup: False
+remove_images_on_cleanup: false
 user: admin
 pass: redhat
 
-secure_registry: False
-expose_router_metrics: False
+secure_registry: false
+expose_router_metrics: false
 
 http_proxy:
 https_proxy:
