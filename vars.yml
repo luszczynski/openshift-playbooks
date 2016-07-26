@@ -12,8 +12,9 @@ expose_router_metrics: false
 http_proxy:
 https_proxy:
 no_proxy:
-user_proxy:
-pass_proxy:
+proxy_user:
+proxy_pass:
+proxy_port:
 
 sdn_subnet: 10.1.0.0/16
 service_subnet: 172.30.0.0/16

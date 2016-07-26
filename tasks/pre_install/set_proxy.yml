@@ -3,8 +3,29 @@
   tasks:
    - include_vars: vars.yaml
 
-   - name:
-     shell:
+   # - name: Update rhsm with proxy hostname
+   #   lineinfile: dest=/etc/rhsm/rhsm.conf backup=yes regexp=^proxy_hostname line=proxy_hostname={{proxy_http}}
+   #   when: http_proxy is defined or https_proxy is defined
+   #
+   # - name: Update rhsm with proxy port
+   #   lineinfile: dest=/etc/rhsm/rhsm.conf backup=yes regexp=^proxy_port line=proxy_port={{proxy_port}}
+   #   when: proxy_port is defined
+   #
+   # - name: Update rhsm with proxy username
+   #   lineinfile: dest=/etc/rhsm/rhsm.conf backup=yes regexp=^proxy_user line=proxy_user={{proxy_user}}
+   #   when: proxy_user is defined
+   #
+   # - name: Update rhsm with proxy pass
+   #   lineinfile: dest=/etc/rhsm/rhsm.conf backup=yes regexp=^proxy_password line=proxy_password={{proxy_pass}}
+   #   when: proxy_pass is defined
+
+   - name: Add http_proxy and https_proxy to /etc/profile
+     lineinfile: dest=/etc/profile backup=yes line=http_proxy={{http_proxy}}
+     when: http_proxy is defined
+
+   - name: Add http_proxy and https_proxy to /etc/profile
+     lineinfile: dest=/etc/profile backup=yes line=https_proxy={{https_proxy}}
+     when: https_proxy is defined
 
 - hosts: master
   tasks:
