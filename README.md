@@ -41,8 +41,11 @@ no_proxy:
 user_proxy:
 pass_proxy:
 
-sdn_range: 10.1.0.0/16
-service_ip_range: 172.30.0.0/16
+sdn_subnet: 10.1.0.0/16
+service_subnet: 172.30.0.0/16
+
+rhn_user:
+rhn_pass:
 ```
 
 Clone this repo.
@@ -106,11 +109,17 @@ You can clean stopped containers and also remove images from registry in order t
 ansible-playbooks -i hosts.ini tasks/others/clean_docker.yml
 ```
 
-#### Configure GC on Openshift
-
-Coming soon
-
 #### Openshift installation pre-req
+
+You can automate openshift prerequisites using the following playbook.
+
+* Remember you need to set `rhn_user` and `rhn_pass` inside `vars.yml` before running this playbook
+
+```bash
+ansible-playbooks -i hosts.ini tasks/pre_install/pre_req.yml
+```
+
+#### Configure GC on Openshift
 
 Coming soon
 

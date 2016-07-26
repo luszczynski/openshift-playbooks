@@ -1,0 +1,43 @@
+---
+- hosts: all
+  tasks:
+  - include_vars: ../../vars.yml
+
+  - name: Register user on RHN
+    redhat_subscription: state=present username={{rhn_user}} password={{rhn_pass}}
+    when: rhn_user is defined and rhn_pass is defined
+
+  - name: Add openshift channel to host
+    redhat_subscription: state=present pool='^Red Hat OpenShift Enterprise$'
+
+  - name: Disable all repos
+    shell: subscription-manager repos --disable="*"
+
+  - name: Enable RHEL and OSE repos only
+    shell: subscription-manager repos --enable="rhel-7-server-rpms" --enable="rhel-7-server-extras-rpms"  --enable="rhel-7-server-ose-3.2-rpms"
+
+  - name: Install basic packages
+    yum: name={{item}} state=latest
+    with_items:
+      - wget
+      - git
+      - net-tools
+      - bind-utils
+      - iptables-services
+      - bridge-utils
+      - bash-completion
+
+  - name: Update host
+    yum: name=* state=latest
+
+  - name: Install atomic-openshift-utils
+    yum: name=atomic-openshift-utils state=latest
+
+  - name: Install docker
+    yum: name=docker-1.10.3 state=latest
+
+  - name: Add {{service_subnet}} to /etc/sysconfig/docker
+    lineinfile: dest=/etc/sysconfig/docker backup=yes regexp=^OPTIONS= line=OPTIONS='--selinux-enabled --insecure-registry {{service_subnet}} --log-opt max-size=1M --log-opt max-file=3'
+
+  - name: Start docker and enable it on boot
+    service: name=docker enabled=yes state=started

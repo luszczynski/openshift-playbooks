@@ -15,5 +15,8 @@ no_proxy:
 user_proxy:
 pass_proxy:
 
-sdn_range: 10.1.0.0/16
-service_ip_range: 172.30.0.0/16
+sdn_subnet: 10.1.0.0/16
+service_subnet: 172.30.0.0/16
+
+rhn_user:
+rhn_pass:
