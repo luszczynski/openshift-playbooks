@@ -1,0 +1,44 @@
+---
+- hosts: nfs
+  tasks:
+  - include_vars: ../../vars.yml
+
+  - name: Install nfs-utils packages
+    yum: name=nfs-utils state=latest
+
+  - name: Start nfs and rpcbind
+    service: name={{item}} state=started
+    with_items:
+      - nfs
+      - rpcbind
+
+  - name: Create /nfs
+    file: path=/nfs state=directory mode=777
+
+  - name: Exportfs
+    shell: exportfs -a && setsebool -P virt_use_nfs 1
+
+  - name: Alter /etc/sysconfig/nfs
+    lineinfile: dest=/etc/sysconfig/nfs state=present backup=yes line="{{item}}"
+    with_items:
+      - LOCKD_TCPPORT=32803
+      - LOCKD_UDPPORT=32769
+      - MOUNTD_PORT=892
+
+  - name: Restarting services
+    service: name={{item}} state=restarted
+    with_items:
+      - rpcbind
+      - nfs
+
+  - name: Configuring iptables
+    shell: iptables -I INPUT -p udp -s 0/0 -d 0/0 -m multiport --dport 111,42819,45216,20048,2049,42261,58086 -j ACCEPT && iptables -I INPUT -p tcp -s 0/0 -d 0/0 -m multiport --dport 111,42819,45216,20048,2049,42261,58086 -j ACCEPT
+
+  - name: Saving rules in /etc/sysconfig/iptables
+    lineinfile: dest=/etc/sysconfig/iptables state=present backup=yes line="{{item}}" insertbefore="COMMIT"
+    with_items:
+      - -I INPUT -p udp -s 0/0 -d 0/0 -m multiport --dport 111,42819,45216,20048,2049,42261,58086 -j ACCEPT
+      - -I INPUT -p tcp -s 0/0 -d 0/0 -m multiport --dport 111,42819,45216,20048,2049,42261,58086 -j ACCEPT
+
+  - name: Restarting iptables
+    service: name=iptables state=restarted

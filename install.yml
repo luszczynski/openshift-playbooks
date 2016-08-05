@@ -1,13 +1,41 @@
 ---
+
+- hosts: all
+  tasks:
+
+
 - hosts: master
   handlers:
     - include: ../handlers/handlers.yml
   tasks:
+    - include_vars: ../vars.yml
+    
     - include: tasks/router.yml
       tags: [router]
+      when: not router_ha
+
+    - include: tasks/router_ha.yml
+      tags: [router-ha]
+      when: router_ha
+
     - include: tasks/registry.yml
       tags: [registry]
+      when: not registry_ha
+
+    - include: tasks/registry_ha.yml
+      tags: [registry-ha]
+      when: registry_ha
+
     - include: tasks/metrics.yml
       tags: [metrics]
+
     - include: tasks/logging.yml
       tags: [logging]
+
+- hosts: infra
+  handlers:
+    - include: ../handlers/handlers.yml
+  tasks:
+    - include: tasks/router_ha.yml
+      tags: [router-ha]
+      when: router_ha

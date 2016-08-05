@@ -2,7 +2,7 @@
 - include_vars: ../vars.yml
 
 - name: Checking if logging is already installed
-  shell: oc get all --selector logging-infra=kibana
+  shell: oc get projects | grep -i logging || true
   register: logging_installed
 
 - name: Pulling logging images
@@ -12,6 +12,7 @@
    - registry.access.redhat.com/openshift3/logging-elasticsearch:3.2.0
    - registry.access.redhat.com/openshift3/logging-fluentd:3.2.0
    - registry.access.redhat.com/openshift3/logging-kibana:3.2.0
+  when: logging_installed.stdout == '' and uninstall is undefined
 
 - name: Create project logging
   shell: oadm new-project logging --node-selector="" && oc project logging

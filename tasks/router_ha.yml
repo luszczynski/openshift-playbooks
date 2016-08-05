@@ -1,0 +1,36 @@
+---
+- include_vars: ../vars.yml
+
+- name: Checking if router is already installed
+  shell: oc get all -l router=router -n default
+  register: router_installed
+
+
+
+- name: Greping master info
+  shell: oc get nodes | grep -i $(hostname) | awk '{print $1}'
+  register: master_name
+  when: router_installed.stdout == '' and uninstall is undefined
+
+- name: Create service account ipfailover
+  shell: oc create serviceaccount ipfailover -n default
+  when:
+
+- name: Adjust ipfailover policy
+  shell: oadm policy add-scc-to-user privileged system:serviceaccount:default:ipfailover
+  when:
+
+- name: Deploy router
+  shell: oadm router ha-router --replicas=3 --selector="{{label_router}}"  --labels="{{label_router}}" --credentials=/etc/origin/master/openshift-router.kubeconfig  --service-account=ipfailover
+  when: router_installed.stdout == '' and uninstall is undefined
+
+- name: Configura VIP and failover
+  shell: oadm ipfailover ipf-ha-router --replicas=2 --watch-port=80 --selector="{{label_router}}"  --virtual-ips="10.245.2.101-105" --credentials=/etc/origin/master/openshift-router.kubeconfig --service-account=ipfailover --create
+  when: router_installed.stdout == '' and uninstall is undefined
+
+  oadm ipfailover ipf-ha-router-us-west \
+    --replicas=5 --watch-port=80 \
+    --selector="ha-router=geo-us-west" \
+    --virtual-ips="10.245.2.101-105" \
+    --credentials=/etc/origin/master/openshift-router.kubeconfig \
+    --service-account=ipfailover --create

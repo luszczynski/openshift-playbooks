@@ -32,8 +32,13 @@ remove_images_on_cleanup: false
 user: admin # this user needs to be cluster admin
 pass: redhat
 
+#Registry
 secure_registry: false
+ha_registry: false
+
+# Router
 expose_router_metrics: false
+ha_router: false
 
 http_proxy:
 https_proxy:
