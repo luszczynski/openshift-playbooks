@@ -1,0 +1,14 @@
+---
+# Uninstalling
+- name: Cleaning up registry
+  shell: oc {{item}} -n default || true
+  with_items:
+    - delete all -l docker-registry=default
+    - delete sa registry
+    - delete ClusterRoleBinding registry-registry-role
+
+- name: Remove registry images
+  shell: docker rmi registry.access.redhat.com/openshift3/{{item}}:{{image_version}}
+  when: remove_images_on_cleanup
+  with_items:
+    - ose-docker-registry

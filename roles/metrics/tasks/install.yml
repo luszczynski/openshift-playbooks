@@ -1,0 +1,43 @@
+---
+
+# - name: Pulling metrics images
+#   shell: docker pull {{ item }}
+#   with_items:
+#    - registry.access.redhat.com/openshift3/metrics-heapster:{{metrics_image_version}}
+#    - registry.access.redhat.com/openshift3/metrics-hawkular-metrics:{{metrics_image_version}}
+#    - registry.access.redhat.com/openshift3/metrics-cassandra:{{metrics_image_version}}
+
+- name: Logging with system:admin
+  shell: oc login -u system:admin
+  changed_when: False
+
+- name: Changing to project openshift-infra
+  shell: oc project openshift-infra
+
+- name: Edit openshift-infra with selector {{metrics_selector}}
+  shell: oc annotate namespace openshift-infra openshift.io/node-selector={{metrics_selector}} --overwrite
+  when: metrics_selector is defined
+
+- name: Creating service account
+  shell: 'echo -e "apiVersion: v1\nkind: ServiceAccount\nmetadata:\n  name: metrics-deployer\nsecrets:\n- name: metrics-deployer" | oc create -f - -n openshift-infra'
+
+- name: Adjusting permissions
+  shell: oadm policy {{item}}
+  with_items:
+    - add-role-to-user edit system:serviceaccount:openshift-infra:metrics-deployer -n openshift-infra
+    - add-cluster-role-to-user cluster-reader system:serviceaccount:openshift-infra:heapster -n openshift-infra
+
+- name: Creating secrets
+  shell: oc secrets new metrics-deployer nothing=/dev/null -n openshift-infra
+
+- name: Creating metrics deployer
+  shell: oc new-app -f /usr/share/openshift/examples/infrastructure-templates/enterprise/metrics-deployer.yaml -p HAWKULAR_METRICS_HOSTNAME=hawkular-metrics.{{subdomain}} -p USE_PERSISTENT_STORAGE=false -n openshift-infra
+
+- name: Ensuring there is no metricsPublicURL
+  shell: grep metricsPublicURL /etc/origin/master/master-config.yaml
+  register: metrics_public_url
+  changed_when: false
+
+- name: Editing master-config.yaml with metrics url
+  lineinfile: "dest=/etc/origin/master/master-config.yaml state=present backup=yes insertbefore='logout' line='  metricsPublicURL: https://hawkular-metrics.{{subdomain}}/hawkular/metrics'"
+  when: metrics_public_url.stdout == ""

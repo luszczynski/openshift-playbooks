@@ -1,0 +1,14 @@
+---
+
+- name: Checking if router is already installed
+  shell: oc get all -l router=router -n default
+  register: router_installed
+  changed_when: False
+
+- name: Installing router
+  include: install.yml
+  when: router_installed.stdout == '' and uninstall is undefined
+
+- name: Uninstalling router
+  include: uninstall.yml
+  when: router_installed.stdout != '' and uninstall is defined

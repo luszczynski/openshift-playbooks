@@ -1,0 +1,85 @@
+---
+################
+### Clean up ###
+################
+remove_images_on_cleanup: false
+
+# Remove old builds and deployments
+prune_builds_deployments: true
+
+# Remove old images on registry
+prune_register_images: true
+
+############
+### Auth ###
+############
+user: openshift
+pass: openshift
+
+# This user needs to be a cluster-admin and image pruner (oadm policy add-role-to-user cluster-admin superuser && oadm policy add-cluster-role-to-user system:image-pruner superuser)
+# It will be used to clean the registry
+user_cluster: admin
+pass_cluster: redhat@123
+
+###########
+### DNS ###
+###########
+# Install a DNS server (bind)
+install_dns: false
+
+################
+### Registry ###
+################
+# Secure and expose registry with certs
+secure_registry: false
+
+# Install ha registry
+registry_ha: false
+
+# Label which registry will schedule
+registry_selector: region=infra
+
+# If you want to install registry on master. If true, label_registry will be ignored
+install_registry_on_master: true
+
+##############
+### Router ###
+##############
+# Expose router metrics
+expose_router_metrics: false
+
+# Install ha router
+router_ha: false
+
+# Label which router will schedule
+router_selector: region=infra
+
+# If you want to install router on master. If true, label_router will be ignored
+install_router_on_master: true
+
+###############
+### Metrics ###
+###############
+metrics_selector: region=infra
+
+#############
+### Proxy ###
+#############
+http_proxy:
+https_proxy:
+no_proxy:
+proxy_user:
+proxy_pass:
+proxy_port:
+
+###############
+### Network ###
+###############
+sdn_subnet: 10.1.0.0/16
+service_subnet: 172.30.0.0/16
+
+####################
+### Subscription ###
+####################
+rhn_user:
+rhn_pass:

@@ -1,0 +1,62 @@
+- name: Logging with system:admin
+  shell: oc login -u system:admin
+  changed_when: False
+
+# - name: Pulling logging images
+#   shell: docker pull {{ item }}
+#   with_items:
+#    - registry.access.redhat.com/openshift3/logging-auth-proxy:{{logging_image_version}}
+#    - registry.access.redhat.com/openshift3/logging-elasticsearch:{{logging_image_version}}
+#    - registry.access.redhat.com/openshift3/logging-fluentd:{{logging_image_version}}
+#    - registry.access.redhat.com/openshift3/logging-kibana:{{logging_image_version}}
+
+- name: Create project logging
+  shell: oadm new-project logging --node-selector="" && oc project logging
+
+- name: Creating secrets
+  shell: oc secrets new logging-deployer nothing=/dev/null -n logging
+
+- name: Creating service account
+  shell: 'echo -e "apiVersion: v1\nkind: ServiceAccount\nmetadata:\n  name: logging-deployer\nsecrets:\n- name: logging-deployer" | oc create -f - -n logging'
+
+- name: Adding service account permission
+  shell: oc policy add-role-to-user edit --serviceaccount logging-deployer -n logging
+
+- name: Adjusting permissions scc and clusters roles
+  shell: oadm policy {{item}} -n logging
+  with_items:
+    - add-scc-to-user privileged system:serviceaccount:logging:aggregated-logging-fluentd
+    - add-cluster-role-to-user cluster-reader system:serviceaccount:logging:aggregated-logging-fluentd
+
+- name: Creating logging deployer
+  shell: oc new-app logging-deployer-template --param KIBANA_HOSTNAME=kibana.{{subdomain}} --param ES_CLUSTER_SIZE=1 --param PUBLIC_MASTER_URL={{master_public_url}} -n logging
+
+- name: Waiting deployer to finish
+  shell: oc get po | grep logging-deployer | awk '{print $3}'
+  register: deployer_status
+  until: deployer_status.stdout.find("Completed") > -1
+  retries: 20
+  delay: 30
+
+- name: Deploy logging template
+  shell: oc new-app logging-support-template -n logging
+
+- name: Importing new tags
+  shell: oc import-image "{{item}}:{{logging_image_version}}" --from "registry.access.redhat.com/openshift3/{{item}}:{{logging_image_version}}"
+  with_items:
+      - logging-auth-proxy
+      - logging-kibana
+      - logging-elasticsearch
+      - logging-fluentd
+
+- name: Scale up fluentd
+  shell: oc scale dc/logging-fluentd --replicas={{number_of_nodes}}
+
+- name: Ensuring there is no loggingPublicURL
+  shell: grep loggingPublicURL /etc/origin/master/master-config.yaml
+  register: logging_public_url
+  changed_when: false
+
+- name: Editing master-config.yaml with logging url
+  lineinfile: "dest=/etc/origin/master/master-config.yaml state=present backup=yes insertbefore='logout' line='  loggingPublicURL: https://kibana.{{subdomain}}'"
+  when: logging_public_url.stdout == ""

@@ -1,0 +1,14 @@
+---
+
+- name: Checking if metrics is already installed
+  shell: oc get all --selector="metrics-infra" -n openshift-infra
+  register: metrics_installed
+  changed_when: False
+
+- name: Installing metrics
+  include: install.yml
+  when: metrics_installed.stdout == '' and uninstall is undefined
+
+- name: Uninstalling metrics
+  include: uninstall.yml
+  when: metrics_installed.stdout != '' and uninstall is defined

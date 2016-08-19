@@ -1,0 +1,19 @@
+
+- name: Cleaning up metrics
+  shell:  oc {{item}} -n openshift-infra || true
+  with_items:
+    - delete all --selector="metrics-infra"
+    - delete sa --selector="metrics-infra"
+    - delete templates --selector="metrics-infra"
+    - delete secrets --selector="metrics-infra"
+    - delete pvc --selector="metrics-infra"
+    - delete sa metrics-deployer
+    - delete secret metrics-deployer
+
+- name: Remove metrics images
+  shell: docker rmi registry.access.redhat.com/openshift3/{{item}}:{{metrics_image_version}}
+  when: remove_images_on_cleanup
+  with_items:
+    - metrics-heapster
+    - metrics-hawkular-metrics
+    - metrics-cassandra

@@ -3,6 +3,18 @@
   tasks:
   - include_vars: ../../vars.yml
 
+  - name: Configuring proxy
+    shell:
+
+
+    - name: Add http_proxy and https_proxy to /etc/profile
+      lineinfile: dest=/etc/profile backup=yes line=http_proxy={{http_proxy}}
+      when: http_proxy is defined
+
+    - name: Add http_proxy and https_proxy to /etc/profile
+      lineinfile: dest=/etc/profile backup=yes line=https_proxy={{https_proxy}}
+      when: https_proxy is defined
+
   - name: Register user on RHN
     redhat_subscription: state=present username={{rhn_user}} password={{rhn_pass}}
     when: rhn_user is defined and rhn_pass is defined

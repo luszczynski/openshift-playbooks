@@ -1,0 +1,12 @@
+- name: Remove stopped containers
+  shell: docker rm {{item}} || true
+  with_items:
+    - $(docker ps --filter "status=exited" -q)
+    - $(docker ps | grep Dead | awk 'print $1')
+
+- name: Remove Old Images
+  shell: docker rmi {{item}} || true
+  with_items:
+    - $(docker images | grep 172.30 | awk '{print $1}')
+    - $(docker images | grep 172.30 | awk '{print $3}')
+    - $(docker images | egrep '^<none>' | awk '{print $3}')

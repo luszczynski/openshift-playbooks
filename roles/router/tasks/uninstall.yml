@@ -1,0 +1,3 @@
+# Uninstalling
+- name: Cleaning up router
+  shell: oc delete all -l router=router -n default

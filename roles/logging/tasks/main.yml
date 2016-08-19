@@ -1,0 +1,14 @@
+---
+
+- name: Checking if logging is already installed
+  shell: oc get projects | grep -i logging || true
+  register: logging_installed
+  changed_when: False
+
+- name: Installing logging
+  include: install.yml
+  when: logging_installed.stdout == '' and uninstall is undefined
+
+- name: Uninstalling logging
+  include: uninstall.yml
+  when: logging_installed.stdout != '' and uninstall is defined

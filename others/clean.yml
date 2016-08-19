@@ -1,0 +1,8 @@
+---
+- hosts: all
+  roles:
+     - { role: ../roles/clean, all: true }
+
+- hosts: master
+  roles:
+    - { role: ../roles/clean, all: false }

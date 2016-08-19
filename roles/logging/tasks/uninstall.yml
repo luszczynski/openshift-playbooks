@@ -1,0 +1,20 @@
+- name: Cleaning up logging aggregation
+  shell: oc {{item}} -n logging || true
+  with_items:
+    - delete all --selector logging-infra=kibana
+    - delete all --selector logging-infra=fluentd
+    - delete all --selector logging-infra=elasticsearch
+    - delete all --selector logging-infra=curator
+    - delete all,sa,oauthclient --selector logging-infra=support
+    - delete secret logging-fluentd logging-elasticsearch logging-es-proxy logging-kibana logging-kibana-proxy logging-kibana-ops-proxy
+    - delete project logging
+
+- name: Remove logging images
+  shell: docker rmi registry.access.redhat.com/openshift3/{{item}}:{{logging_image_version}} || true
+  when: remove_images_on_cleanup
+  with_items:
+    - logging-fluentd
+    - logging-elasticsearch
+    - logging-deployment
+    - logging-auth-proxy
+    - logging-kibana

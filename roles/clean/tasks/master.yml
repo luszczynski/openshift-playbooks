@@ -1,0 +1,7 @@
+- name: Prune old builds and deployments
+  shell: oc login -u {{user_cluster}} -p {{pass_cluster}} && oadm prune builds --confirm && oadm prune deployments --confirm
+  when: prune_builds_deployments
+
+- name: Prune old images on register
+  shell: oc login -u {{user_cluster}} -p {{pass_cluster}} && oadm prune images --confirm
+  when: prune_register_images

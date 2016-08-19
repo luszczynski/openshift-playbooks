@@ -1,0 +1,49 @@
+# Parallel Image Pulls with Docker 1.9+ (https://docs.openshift.com/enterprise/3.2/install_config/master_node_configuration.html#node-configuration-files)
+# Node GC (https://docs.openshift.com/enterprise/3.2/admin_guide/garbage_collection.html)
+
+---
+- hosts: all
+  tasks:
+   - include_vars: vars.yaml
+
+   - name:
+     shell:
+
+- hosts: master
+  tasks:
+    - include_vars: vars.yml
+
+    name: Importing new images
+    shell: oc import-images {{item}} -n openshift
+    with_items:
+     - fis-java-openshift
+     - fis-karaf-openshift
+     - jboss-amq-62
+     - jboss-datagrid65-openshift
+     - jboss-decisionserver62-openshift
+     - jboss-eap64-openshift
+     - jboss-eap70-openshift
+     - jboss-webserver30-tomcat7-openshift
+     - jboss-webserver30-tomcat8-openshift
+     - jenkins
+     - mariadb
+     - mongodb
+     - mysql
+     - nodejs
+     - perl
+     - php
+     - postgresql
+     - python
+     - redhat-sso70-openshift
+     - ruby
+
+- hosts: nodes
+  tasks:
+    - include_vars: vars.yml
+
+    - name:
+      shell:
+
+
+# Parallel Image Pulls with Docker 1.9+ (https://docs.openshift.com/enterprise/3.2/install_config/master_node_configuration.html#node-configuration-files)
+# Node GC (https://docs.openshift.com/enterprise/3.2/admin_guide/garbage_collection.html)

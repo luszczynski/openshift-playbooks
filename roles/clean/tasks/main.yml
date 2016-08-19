@@ -1,0 +1,9 @@
+---
+
+- name: Cleaning all nodes
+  include: all.yml
+  when: all
+
+- name: Cleaning register and master
+  include: master.yml
+  when: not all
