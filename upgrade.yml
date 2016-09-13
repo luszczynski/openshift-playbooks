@@ -1,0 +1,9 @@
+---
+- hosts: master
+  roles:
+     - { role: common, tags: ["registry","router","metrics","logging"] }
+     - { role: registry, tags: ["registry"], upgrade: true }
+     - { role: router, tags: ["router"], upgrade: true }
+     - { role: metrics, tags: ["metrics"], upgrade: true }
+     - { role: logging, tags: ["logging"], upgrade: true }
+     - { role: templates, tags: ["registry","router","metrics","logging"], upgrade: true }

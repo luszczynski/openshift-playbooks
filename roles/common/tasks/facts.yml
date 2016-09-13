@@ -1,0 +1,56 @@
+- name: Grep image version
+  shell: grep IMAGE_VERSION /etc/sysconfig/atomic-openshift-node | cut -d"=" -f2
+  register: fact_image_version
+  changed_when: False
+
+- name: Gather number of nodes
+  shell: oc get nodes --no-headers | grep -v SchedulingDisabled | wc -l
+  register: fact_number_of_nodes
+  changed_when: False
+
+- name: Get master url
+  shell: grep masterPublicURL /etc/origin/master/master-config.yaml | head -1 | awk '{print $2}'
+  register: fact_master_public_url
+  changed_when: False
+
+- name: Get domain
+  shell: hostname -f | cut -d. -f2,3,4,5,6
+  register: fact_domain
+  changed_when: False
+
+- name: Get subdomain
+  shell: grep subdomain /etc/origin/master/master-config.yaml | awk '{print $2}'| tr -d '"'
+  register: fact_subdomain
+  changed_when: False
+
+- fail: msg="subdomain on /etc/origin/master/master-config.yaml is empty"
+  when: fact_subdomain.stdout == ""
+
+- name: Get metrics image version
+  script: ../scripts/grepMetrics.sh
+  register: fact_metrics_image_version
+  changed_when: False
+
+- name: Get logging image version
+  script: ../scripts/grepMetrics.sh
+  register: fact_logging_image_version
+  changed_when: False
+
+- debug: var={{item}}
+  with_items:
+    - fact_image_version.stdout
+    - fact_number_of_nodes.stdout
+    - fact_master_public_url.stdout
+    - fact_subdomain.stdout
+    - fact_domain.stdout
+    - fact_logging_image_version.stdout
+    - fact_metrics_image_version.stdout
+
+- set_fact:
+    image_version: "{{fact_image_version.stdout}}"
+    number_of_nodes: "{{fact_number_of_nodes.stdout}}"
+    master_public_url: "{{fact_master_public_url.stdout}}"
+    subdomain: "{{fact_subdomain.stdout}}"
+    domain: "{{fact_domain.stdout}}"
+    logging_image_version: "{{fact_logging_image_version.stdout}}"
+    metrics_image_version: "{{fact_metrics_image_version.stdout}}"

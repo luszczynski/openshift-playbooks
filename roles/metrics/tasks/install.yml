@@ -16,7 +16,7 @@
 
 - name: Edit openshift-infra with selector {{metrics_selector}}
   shell: oc annotate namespace openshift-infra openshift.io/node-selector={{metrics_selector}} --overwrite
-  when: metrics_selector is defined
+  when: metrics_selector != ""
 
 - name: Creating service account
   shell: 'echo -e "apiVersion: v1\nkind: ServiceAccount\nmetadata:\n  name: metrics-deployer\nsecrets:\n- name: metrics-deployer" | oc create -f - -n openshift-infra'
@@ -34,7 +34,7 @@
   shell: oc new-app -f /usr/share/openshift/examples/infrastructure-templates/enterprise/metrics-deployer.yaml -p HAWKULAR_METRICS_HOSTNAME=hawkular-metrics.{{subdomain}} -p USE_PERSISTENT_STORAGE=false -n openshift-infra
 
 - name: Ensuring there is no metricsPublicURL
-  shell: grep metricsPublicURL /etc/origin/master/master-config.yaml
+  shell: grep metricsPublicURL /etc/origin/master/master-config.yaml || true
   register: metrics_public_url
   changed_when: false
 

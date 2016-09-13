@@ -1,7 +1,7 @@
 ---
 
 - name: Checking if router is already installed
-  shell: oc get all -l router=router -n default
+  shell: oc login -u system:admin && oc get all -l router=router -n default
   register: router_installed
   changed_when: False
 
@@ -12,3 +12,7 @@
 - name: Uninstalling router
   include: uninstall.yml
   when: router_installed.stdout != '' and uninstall is defined
+
+- name: Upgrading router
+  include: upgrade.yml
+  when: router_installed.stdout != '' and upgrade is defined

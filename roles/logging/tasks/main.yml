@@ -1,7 +1,7 @@
 ---
 
 - name: Checking if logging is already installed
-  shell: oc get projects | grep -i logging || true
+  shell: oc login -u system:admin && oc get all -n logging
   register: logging_installed
   changed_when: False
 
@@ -12,3 +12,7 @@
 - name: Uninstalling logging
   include: uninstall.yml
   when: logging_installed.stdout != '' and uninstall is defined
+
+- name: Upgrading logging
+  include: upgrade.yml
+  when: logging_installed.stdout != '' and upgrade is defined

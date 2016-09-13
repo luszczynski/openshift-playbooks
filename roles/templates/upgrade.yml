@@ -1,0 +1,59 @@
+- name: Update atomic-openshift-utils
+  yum: name=atomic-openshift-utils state=latest
+
+- name: Create the global openshift image streams and examples
+  shell: oc create -n openshift -f /usr/share/openshift/examples/{{item}} || true
+  with_items:
+    - image-streams/image-streams-rhel7.json
+    - image-streams/dotnet_imagestreams.json
+    - db-templates
+    - quickstart-templates
+    - xpaas-streams
+    - xpaas-templates
+
+- name: Replace  the global openshift image streams and examples
+  shell: oc replace -n openshift -f /usr/share/openshift/examples/{{item}} || true
+  with_items:
+    - image-streams/image-streams-rhel7.json
+    - db-templates
+    - quickstart-templates
+    - xpaas-streams
+    - xpaas-templates
+
+- name: Install image streams
+  shell: oc create -n openshift -f /usr/share/ansible/openshift-ansible/roles/openshift_examples/files/examples/v1.3/{{item}} || true
+  with_items:
+    - image-streams/image-streams-rhel7.json
+    - image-streams/dotnet_imagestreams.json
+
+- name: Update image streams
+  shell: oc replace -n openshift -f /usr/share/ansible/openshift-ansible/roles/openshift_examples/files/examples/v1.3/{{item}} || true
+  with_items:
+    - image-streams/image-streams-rhel7.json
+    - image-streams/dotnet_imagestreams.json
+
+- name: Create templates
+  shell: oc create -n openshift -f /usr/share/ansible/openshift-ansible/roles/openshift_examples/files/examples/v1.3/{{item}}/ || true
+  with_items:
+    - quickstart-templates
+    - db-templates
+    - infrastructure-templates
+    - xpaas-templates
+    - xpaas-streams
+
+- name: Update templates
+  shell: oc replace -n openshift -f /usr/share/ansible/openshift-ansible/roles/openshift_examples/files/examples/v1.3/{{item}}/ || true
+  with_items:
+    - quickstart-templates
+    - db-templates
+    - infrastructure-templates
+    - xpaas-templates
+    - xpaas-streams
+
+- name: Get all image streams
+  shell: oc get is --no-headers -n openshift | awk '{print $1}'
+  register: is_list
+
+- name: Import images stream
+  shell: oc import-image -n openshift {{item}} || true
+  with_items: "{{is_list.stdout_lines}}"

@@ -7,7 +7,7 @@
     - delete all --selector logging-infra=curator
     - delete all,sa,oauthclient --selector logging-infra=support
     - delete secret logging-fluentd logging-elasticsearch logging-es-proxy logging-kibana logging-kibana-proxy logging-kibana-ops-proxy
-    - delete project logging
+    - delete project logging -n logging
 
 - name: Remove logging images
   shell: docker rmi registry.access.redhat.com/openshift3/{{item}}:{{logging_image_version}} || true

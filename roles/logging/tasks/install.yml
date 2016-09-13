@@ -10,8 +10,13 @@
 #    - registry.access.redhat.com/openshift3/logging-fluentd:{{logging_image_version}}
 #    - registry.access.redhat.com/openshift3/logging-kibana:{{logging_image_version}}
 
+- name: Checking if logging project already exist
+  shell: oc get --no-headers project logging || true
+  register: project_logging
+
 - name: Create project logging
   shell: oadm new-project logging --node-selector="" && oc project logging
+  when: project_logging.stdout == ""
 
 - name: Creating secrets
   shell: oc secrets new logging-deployer nothing=/dev/null -n logging
@@ -48,12 +53,16 @@
       - logging-kibana
       - logging-elasticsearch
       - logging-fluentd
+      - logging-curator
 
 - name: Scale up fluentd
   shell: oc scale dc/logging-fluentd --replicas={{number_of_nodes}}
 
+- name: Scale up curator
+  shell: oc scale dc/logging-curator --replicas=1 || true
+
 - name: Ensuring there is no loggingPublicURL
-  shell: grep loggingPublicURL /etc/origin/master/master-config.yaml
+  shell: grep loggingPublicURL /etc/origin/master/master-config.yaml || true
   register: logging_public_url
   changed_when: false
 

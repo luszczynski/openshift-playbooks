@@ -1,0 +1,3 @@
+- name: Upgrade templates and image streams
+  include: upgrade.yml
+  when: upgrade is defined

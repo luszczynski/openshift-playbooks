@@ -12,43 +12,55 @@
 - name: Greping master info
   shell: oc get nodes | grep -i $(hostname) | awk '{print $1}'
   register: master_name
+  when: install_router_on_master
 
 - name: Changing master to schedulable
   shell: oadm manage-node {{master_name.stdout}} --schedulable=true
+  when: install_router_on_master
 
 - name: Grep master label
   shell: oc describe node {{master_name.stdout}} | grep Label | awk '{print $2}'
   register: master_label
+  when: install_router_on_master
 
-- name: Install Router
+- name: Install Router on master
   shell: oc project default && oadm router router --replicas=1  --credentials='/etc/origin/master/openshift-router.kubeconfig' --service-account=router --selector={{master_label.stdout}}
   failed_when: master_label.stdout == ''
-  when: not expose_router_metrics
+  when: not expose_router_metrics and install_router_on_master
 
-- name: Install Router with metrics
+- name: Install Router on master with metrics
   shell: oc project default && oadm router router --replicas=1  --credentials='/etc/origin/master/openshift-router.kubeconfig' --service-account=router --selector={{master_label.stdout}} --expose-metrics --metrics-image=prom/haproxy-exporter
   failed_when: master_label.stdout == ''
-  when: expose_router_metrics
+  when: expose_router_metrics and install_router_on_master
+
+- name: Install Router on {{router_selector}}
+  shell: oc project default && oadm router router --replicas=1  --credentials='/etc/origin/master/openshift-router.kubeconfig' --service-account=router --selector={{router_selector}}
+  failed_when: master_label.stdout == ''
+  when: not install_router_on_master
 
 # HA Router
 
 - name: Greping master info
   shell: oc get nodes | grep -i $(hostname) | awk '{print $1}'
   register: master_name
+  when: router_ha
 
 - name: Create service account ipfailover
   shell: oc create serviceaccount ipfailover -n default
-  when:
+  when: router_ha
 
 - name: Adjust ipfailover policy
   shell: oadm policy add-scc-to-user privileged system:serviceaccount:default:ipfailover
-  when:
+  when: router_ha
 
 - name: Deploy router
   shell: oadm router ha-router --replicas=3 --selector="{{label_router}}"  --labels="{{label_router}}" --credentials=/etc/origin/master/openshift-router.kubeconfig  --service-account=ipfailover
+  when: router_ha
 
 - name: Configura VIP and failover
   shell: oadm ipfailover ipf-ha-router --replicas=2 --watch-port=80 --selector="{{label_router}}"  --virtual-ips="10.245.2.101-105" --credentials=/etc/origin/master/openshift-router.kubeconfig --service-account=ipfailover --create
+  when: router_ha
 
 - name: Creating VIP
   shell: oadm ipfailover ipf-ha-router-us-west --replicas=5 --watch-port=80 --selector="ha-router=geo-us-west"  --virtual-ips="10.245.2.101-105" --credentials=/etc/origin/master/openshift-router.kubeconfig  --service-account=ipfailover --create
+  when: router_ha

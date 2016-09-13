@@ -1,0 +1,17 @@
+$ORIGIN .
+$TTL 1 ; 1 seconds (for testing only)
+devops.org       IN SOA  ns1.devops.org. hostmaster.devops.org. (
+            2011112904 ; serial
+            60         ; refresh (1 minute)
+            15         ; retry (15 seconds)
+            1800       ; expire (30 minutes)
+            10         ; minimum (10 seconds)
+            )
+        NS  ns1.devops.org.
+        MX  10 mail.devops.org.
+$ORIGIN devops.org.
+ns1      A   10.211.55.11
+master   A   10.211.55.10
+node01   A   10.211.55.11
+node02   A   10.211.55.12
+desktop  A   192.168.0.14

@@ -1,0 +1,2 @@
+- name: Upgrade router dc image
+  script: ../scripts/updateRouter.sh {{image_version}}

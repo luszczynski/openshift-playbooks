@@ -1,3 +1,9 @@
 # Uninstalling
 - name: Cleaning up router
   shell: oc delete all -l router=router -n default
+
+- name: Remove registry images
+  shell: docker rmi registry.access.redhat.com/openshift3/{{item}}:{{image_version}}
+  when: remove_images_on_cleanup
+  with_items:
+      - ose-haproxy-router

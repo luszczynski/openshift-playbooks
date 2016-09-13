@@ -30,6 +30,8 @@
 
 - name: Create and correct registry folder permissions
   shell: mkdir -p /registry && chown 1001:root /registry
+  notify:
+    - Restart Openshift Master
 
 # Secure registry
 - name: Fetch registry service IP

@@ -18,7 +18,7 @@ pass: openshift
 
 # This user needs to be a cluster-admin and image pruner (oadm policy add-role-to-user cluster-admin superuser && oadm policy add-cluster-role-to-user system:image-pruner superuser)
 # It will be used to clean the registry
-user_cluster: admin
+user_cluster: superuser
 pass_cluster: redhat@123
 
 ###########
@@ -26,6 +26,12 @@ pass_cluster: redhat@123
 ###########
 # Install a DNS server (bind)
 install_dns: false
+
+##############
+### Master ###
+##############
+master_schedulable: true
+
 
 ################
 ### Registry ###
@@ -60,7 +66,7 @@ install_router_on_master: true
 ###############
 ### Metrics ###
 ###############
-metrics_selector: region=infra
+metrics_selector: ""
 
 #############
 ### Proxy ###

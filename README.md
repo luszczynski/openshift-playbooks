@@ -187,10 +187,10 @@ ansible-playbooks -i hosts.ini others/clean.yml
 
 You can automate openshift prerequisites using the following playbook.
 
-* Remember you need to set `rhn_user` and `rhn_pass` inside `all.yml` before running this playbook
+* Remember you need to set `rhn_user` and `rhn_pass` inside `group_vars/all.yml` before running this playbook
 
 ```bash
-ansible-playbooks -i hosts.ini others/pre-req.yml
+ansible-playbooks -i hosts.ini install.yml --tags=pre-install
 ```
 
 #### Configure GC on Openshift

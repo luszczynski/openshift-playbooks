@@ -1,0 +1,2 @@
+- name: Upgrading metrics
+  shell: oc new-app -f /usr/share/openshift/examples/infrastructure-templates/enterprise/metrics-deployer.yaml -p HAWKULAR_METRICS_HOSTNAME=hawkular-metrics.{{subdomain}},MODE=refresh,USE_PERSISTENT_STORAGE=false -n openshift-infra

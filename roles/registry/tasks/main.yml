@@ -1,7 +1,9 @@
 ---
 
+
+
 - name: Checking if registry is already installed
-  shell: oc get all -l docker-registry=default -n default
+  shell: oc login -u system:admin && oc get all -l docker-registry=default -n default
   register: registry_installed
   changed_when: False
 
@@ -12,3 +14,7 @@
 - name: Uninstalling registry
   include: uninstall.yml
   when: registry_installed.stdout != '' and uninstall is defined
+
+- name: Upgrading registry
+  include: upgrade.yml
+  when: registry_installed.stdout != '' and upgrade is defined
