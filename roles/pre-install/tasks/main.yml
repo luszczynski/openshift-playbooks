@@ -20,7 +20,7 @@
   shell: subscription-manager repos --disable="*"
 
 - name: Enable RHEL and OSE repos only
-  shell: subscription-manager repos --enable="rhel-7-server-rpms" --enable="rhel-7-server-extras-rpms"  --enable="rhel-7-server-ose-3.2-rpms"
+  shell: subscription-manager repos --enable="rhel-7-server-rpms" --enable="rhel-7-server-extras-rpms"  --enable="rhel-7-server-ose-3.3-rpms"
 
 - name: Install basic packages
   yum: name={{item}} state=latest

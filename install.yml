@@ -12,6 +12,9 @@
     - { role: metrics, tags: ["metrics"] }
     - { role: logging, tags: ["logging"] }
 
+- hosts: repository
+  roles:
+    - { role: repository, tags: ["repository"] }
 
 #
 # - hosts: infra

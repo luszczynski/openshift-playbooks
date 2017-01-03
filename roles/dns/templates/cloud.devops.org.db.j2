@@ -1,0 +1,14 @@
+$TTL 1
+$ORIGIN apps.example.com.
+@       IN SOA  apps.example.com. root.apps.example.com. (
+            2011112905 ; serial
+            60         ; refresh (1 minute)
+            15         ; retry (15 seconds)
+            1800       ; expire (30 minutes)
+            10         ; minimum (10 seconds)
+            )
+	NS      ns1.apps.example.com.
+
+ns1      A      10.128.4.55
+*  IN    A      10.128.4.121
+IN       A 	10.128.4.121

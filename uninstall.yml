@@ -5,3 +5,6 @@
      - { role: router, tags: ["router"], uninstall: true }
      - { role: metrics, tags: ["metrics"], uninstall: true }
      - { role: logging, tags: ["logging"], uninstall: true}
+
+- hosts: repository
+     - { role: repository, tags: ["repository"], uninstall: true }

@@ -7,3 +7,6 @@
      - { role: metrics, tags: ["metrics"], upgrade: true }
      - { role: logging, tags: ["logging"], upgrade: true }
      - { role: templates, tags: ["registry","router","metrics","logging"], upgrade: true }
+
+- hosts: repository
+     - { role: repository, tags: ["repository"], upgrade: true }
